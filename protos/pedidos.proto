@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package pedidos;
+
+import "google/protobuf/timestamp.proto";
+
+service PedidoServicio {
+  rpc CrearPedido(CrearPedidoRequest) returns (Pedido);
+  rpc ObtenerPedido(ObtenerPedidoRequest) returns (Pedido);
+  rpc ListarPedidos(ListarPedidosRequest) returns (ListarPedidosResponse);
+
+  rpc SeguirPedido(SeguirPedidoRequest) returns (stream SeguimientoPedido);
+}
+
+enum EstadoPedido {
+  ESTADO_PEDIDO_DESCONOCIDO = 0; 
+  ESTADO_PEDIDO_PENDIENTE   = 1;
+  ESTADO_PEDIDO_PREPARANDO  = 2;
+  ESTADO_PEDIDO_ENVIADO     = 3;
+  ESTADO_PEDIDO_ENTREGADO   = 4;
+}
+
+message ItemPedido {
+  int32  producto_id     = 1;
+  int32  cantidad        = 2;
+  string nombre_producto = 3;
+  double precio_unitario = 4;
+  double subtotal        = 5;
+}
+
+message Pedido {
+  int32 id                             = 1;
+  repeated ItemPedido items            = 2;
+  double total                         = 3;
+  EstadoPedido estado                  = 4;
+  google.protobuf.Timestamp creado_en  = 5;
+}
+
+
+message ItemPedidoRequest {
+  int32 producto_id = 1;
+  int32 cantidad    = 2;
+}
+
+message CrearPedidoRequest {
+  repeated ItemPedidoRequest items = 1;
+}
+
+message ObtenerPedidoRequest {
+  int32 id = 1;
+}
+
+message ListarPedidosRequest {
+  EstadoPedido estado = 1; 
+}
+
+message ListarPedidosResponse {
+  repeated Pedido pedidos = 1;
+}
+
+message SeguirPedidoRequest {
+  int32 id = 1;
+}
+
+message SeguimientoPedido {
+  int32 pedido_id                      = 1;
+  EstadoPedido estado                  = 2;
+  google.protobuf.Timestamp fecha      = 3;
+  string mensaje                       = 4;
+}
